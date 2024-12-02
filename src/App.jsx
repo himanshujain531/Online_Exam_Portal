@@ -1,9 +1,14 @@
-import React from 'react'
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import Home from './pages/Home'
 
-const App = () => {
-  return (
-    <h1 className='text-red-800'>App</h1>
+export default function App() {
+  return(
+    <BrowserRouter>
+    <Routes>
+    <Route path='/' element={<Home />} />
+</Routes>
+</BrowserRouter>
   )
 }
 
-export default App
+
