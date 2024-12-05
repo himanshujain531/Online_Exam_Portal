@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,35 +9,35 @@ export default function SignIn() {
   const [email, setEmail] = useState(""); // Manage email state
   const [password, setPassword] = useState(""); // Manage password state
   const [loading, setLoading] = useState(false); // Loading state for the button
+  const navigate=useNavigate();
+  const { login } = useAuth(); // Access the login function
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setLoading(true); // Start loading
-  
+    e.preventDefault();
+    setLoading(true);
+
     try {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }), // Send email and password
+        body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        // If the request was successful
         toast.success("Sign-in successful!");
-        console.log(data); // Handle the response (e.g., store tokens, redirect)
+        login(); // Update authentication state
+        navigate("/admin-dashboard");
       } else {
-        // If the request failed
         toast.error(data.message || "Sign-in failed!");
       }
     } catch (error) {
-      console.error("Error during sign-in:", error);
       toast.error("An error occurred. Please try again.");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
   
