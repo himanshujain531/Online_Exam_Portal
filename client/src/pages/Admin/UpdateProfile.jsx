@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useEffect, useState } from 'react';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext"; // Import the AuthContext
 
-export default function UpdateProfile({ currentUser }) {
-  const [formData, setFormData] = useState({
-    username: currentUser?.username || '',
-    email: currentUser?.email || '',
-    password: '', // Adding password to the state
-  });
+export default function UpdateProfile() {
+  const [currentUser, setCurrentUser] = useState(null); // Hold logged-in admin data
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth(); // Get authentication status from context
+
+  useEffect(() => {
+    // If user is not authenticated, redirect to login page
+    if (!isAuthenticated) {
+      navigate("/admin-sign-in");
+    } else {
+      // If user is authenticated, check localStorage for user data
+      const storedUser = localStorage.getItem("currentUser");
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser)); // Parse and set the user data
+      } else {
+        toast.error("No user data found.");
+        navigate("/admin-sign-in"); // Redirect to login if no user data is found
+      }
+    }
+  }, [isAuthenticated, navigate]); // Only run if isAuthenticated or navigate changes
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -16,82 +33,66 @@ export default function UpdateProfile({ currentUser }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      toast.info('Updating profile...', { autoClose: 3000 });
+      toast.info("Updating profile...");
       const res = await fetch(`/api/admin/update/${currentUser._id}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include token if required
         },
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
       if (!data.success) {
-        toast.error(`Update failed: ${data.message}`, { autoClose: 5000 });
+        toast.error(data.message || "Failed to update profile.");
         return;
       }
 
-      toast.success('Profile updated successfully!', { autoClose: 5000 });
+      toast.success("Profile updated successfully!");
+      // Update localStorage with new user data
+      const updatedUser = { ...currentUser, ...formData };
+      setCurrentUser(updatedUser); // Update local state
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser)); // Store updated user in localStorage
     } catch (error) {
-      toast.error(`Error: ${error.message}`, { autoClose: 5000 });
+      toast.error(`Error: ${error.message}`);
     }
   };
 
+  if (!currentUser) return <p>Loading...</p>; // Show loading state until the user is fetched
+
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-md shadow-lg w-96">
-        <h3 className="text-xl font-semibold mb-4">Update Profile</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              value={formData.username}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              onChange={handleChange}
-              id="username"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              value={formData.email}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              onChange={handleChange}
-              id="email"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">
-              Password (Leave blank to keep unchanged)
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              onChange={handleChange}
-              id="password"
-            />
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-500 text-white rounded-md"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md"
-            >
-              Update
-            </button>
-          </div>
-        </form>
-      </div>
+    <div className="p-3 max-w-lg mx-auto">
+      <h1 className="text-3xl font-semibold text-center my-7">Update Profile</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <input
+          type="text"
+          placeholder="Username"
+          defaultValue={currentUser.username}
+          id="username"
+          className="border p-3 rounded-lg"
+          onChange={handleChange}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          defaultValue={currentUser.email}
+          id="email"
+          className="border p-3 rounded-lg"
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          placeholder="New Password"
+          defaultValue={currentUser.password}
+          id="password"
+          className="border p-3 rounded-lg"
+          onChange={handleChange}
+        />
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded-lg">
+          Update
+        </button>
+      </form>
     </div>
   );
 }

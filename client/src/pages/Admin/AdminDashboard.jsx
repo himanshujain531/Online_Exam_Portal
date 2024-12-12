@@ -1,60 +1,62 @@
 import React, { useState, useEffect } from 'react';
-import { Link ,useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AdminProfile from '../../assets/images/AdminProfile.jpg';
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
 
-
 export default function AdminDashboard() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const navigate=useNavigate();
-    const { isAuthenticated, logout } = useAuth();
+    const navigate = useNavigate();
+    const { isAuthenticated, logout, currentUser } = useAuth(); // Using useAuth for context
 
+    // Redirect to login page if not authenticated
     useEffect(() => {
         if (!isAuthenticated) {
-          navigate('/admin-sign-in'); // Redirect to login if not authenticated
+            navigate('/admin-sign-in'); // Redirect to login if not authenticated
         }
-      }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate]);
 
-   
+    // Handle sign-out process
     const handleSignOut = async () => {
         try {
-          const res = await fetch('/api/auth/signout');
-          const data = await res.json();
-      
-          if (data.success === false) {
-            toast.error(`Error: ${data.message}`);
-            return;
-          }
-      
-          // Clear authentication state from localStorage
-          localStorage.removeItem('isAuthenticated');
-          toast.success('Successfully logged out!'); // Show success toast
-          navigate('/admin-sign-in'); // Navigate to the login page after logout
+            const res = await fetch('/api/auth/signout');
+            const data = await res.json();
+
+            if (data.success === false) {
+                toast.error(`Error: ${data.message}`);
+                return;
+            }
+
+            // Clear localStorage and update context
+            localStorage.removeItem('user');
+            localStorage.removeItem('isAuthenticated');
+
+            // Call logout from context
+            logout();
+
+            toast.success('Successfully logged out!');
+            navigate('/admin-sign-in'); // Redirect to login after successful logout
         } catch (error) {
-          toast.error(`Error: ${error.message}`);
+            toast.error(`Error: ${error.message}`);
         }
-      };
-      
-    
+    };
+
     return (
         <>
             {/* Header */}
             <div className="bg-gray-800 text-white p-4 flex justify-between items-center">
-                {/* Left Section: Logout */}
                 <div className="flex items-center space-x-4">
-                    <span onClick={handleSignOut} className="cursor-pointer hover:text-red-300">
+                    <span
+                        onClick={handleSignOut}
+                        className="cursor-pointer hover:text-red-300"
+                    >
                         Logout
                     </span>
                 </div>
-
-                {/* Center Section: Title */}
                 <div className="text-2xl font-bold">
                     <h3>Online Exam System</h3>
                 </div>
-
-                {/* Right Section: Hamburger Menu */}
                 <button
                     className="lg:hidden p-2 bg-gray-800 text-white rounded-full"
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -93,7 +95,6 @@ export default function AdminDashboard() {
                 </button>
             </div>
 
-            {/* Main Content */}
             <div className="flex">
                 {/* Sidebar */}
                 <div
@@ -102,30 +103,38 @@ export default function AdminDashboard() {
                     } transition-transform lg:transform-none lg:static lg:w-1/4`}
                 >
                     <div className="flex justify-center mb-4">
-                        <img
-                            src={AdminProfile}
-                            alt="Admin"
-                            className="w-20 h-20 rounded-full border-2 border-gray-500"
-                        />
-                    </div>
+  <img
+    src={AdminProfile}
+    alt="Admin"
+    className="w-20 h-20 rounded-full border-2 border-gray-500 cursor-pointer"
+    onClick={() => {
+      if (currentUser) {
+        navigate("/update-profile"); // Navigate to update profile
+      } else {
+        toast.error("No user data found.");
+        navigate("/admin-sign-in"); // Fallback to sign-in if no user is found
+      }
+    }}
+  />
+</div>
 
                     <div className="space-y-4">
-                    <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/dashboard" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Dashboard
                         </Link>
-                        <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/subject" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Subject
                         </Link>
-                        <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/exam" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Exam
                         </Link>
-                        <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/question" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Question
                         </Link>
-                        <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/result" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Result
                         </Link>
-                        <Link className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
+                        <Link to="/student-list" className="block bg-gray-600 p-2 rounded hover:bg-gray-500 text-center">
                             Student List
                         </Link>
                     </div>

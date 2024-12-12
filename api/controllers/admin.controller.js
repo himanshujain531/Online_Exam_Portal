@@ -29,5 +29,4 @@ export const updateAdmin= async (req, res, next) => {
     } catch (error) {
       next(error);
     }
-}
-
+} 

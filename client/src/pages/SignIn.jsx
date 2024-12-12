@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
 import { ToastContainer, toast } from "react-toastify";
@@ -9,7 +9,7 @@ export default function SignIn() {
   const [email, setEmail] = useState(""); // Manage email state
   const [password, setPassword] = useState(""); // Manage password state
   const [loading, setLoading] = useState(false); // Loading state for the button
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const { login } = useAuth(); // Access the login function
 
   const handleSubmit = async (e) => {
@@ -28,19 +28,23 @@ export default function SignIn() {
       const data = await response.json();
 
       if (response.ok) {
+        // Store user details in localStorage
+        const user = { email: data.email, username: data.username, password, };
+        localStorage.setItem("user", JSON.stringify(user));
+      
         toast.success("Sign-in successful!");
-        login(); // Update authentication state
-        navigate("/admin-dashboard");
+        login(user); // Pass user details to update the context
+        navigate("/admin-dashboard"); // Navigate after successful login
       } else {
         toast.error(data.message || "Sign-in failed!");
       }
+      
     } catch (error) {
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <>
