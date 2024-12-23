@@ -5,6 +5,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import UpdateProfile from "./pages/Admin/UpdateProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import Subject from "./pages/Admin/Subject";
 
 export default function App() {
   return (
@@ -21,14 +22,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/update-profile"
-            element={
-              <ProtectedRoute>
-                <UpdateProfile />
-              </ProtectedRoute>
-            }
-          />
+          
         </Routes>
       </AuthProvider>
     </BrowserRouter>

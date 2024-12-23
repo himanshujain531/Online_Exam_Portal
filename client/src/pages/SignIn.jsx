@@ -28,17 +28,23 @@ export default function SignIn() {
       const data = await response.json();
 
       if (response.ok) {
+        // Include the `id` from the backend response
+        const user = {
+          id: data.id, // Add id here
+          email: data.email,
+          username: data.username,
+          password,
+        };
+
         // Store user details in localStorage
-        const user = { email: data.email, username: data.username, password, };
         localStorage.setItem("user", JSON.stringify(user));
-      
+
         toast.success("Sign-in successful!");
         login(user); // Pass user details to update the context
         navigate("/admin-dashboard"); // Navigate after successful login
       } else {
         toast.error(data.message || "Sign-in failed!");
       }
-      
     } catch (error) {
       toast.error("An error occurred. Please try again.");
     } finally {
