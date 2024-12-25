@@ -14,6 +14,7 @@ const Exam = () => {
     passMarks: 0,
   });
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedExam, setSelectedExam] = useState(null); // New state for selected exam details
 
   useEffect(() => {
     fetchExams();
@@ -66,6 +67,14 @@ const Exam = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleDetailsClick = (exam) => {
+    setSelectedExam(exam); // Set the selected exam details
+  };
+
+  const closeDetails = () => {
+    setSelectedExam(null); // Close the details view
+  };
+
   return (
     <div className="p-4 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4 text-center">Exam List</h1>
@@ -99,7 +108,10 @@ const Exam = () => {
                   <td className="border border-gray-300 p-2">{exam.level}</td>
                   <td className="border border-gray-300 p-2">
                     <div className="flex flex-wrap gap-2 justify-center">
-                      <button className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 transition">
+                      <button
+                        onClick={() => handleDetailsClick(exam)}
+                        className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 transition"
+                      >
                         Details
                       </button>
                       <button className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600 transition">
@@ -203,6 +215,27 @@ const Exam = () => {
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all"
             >
               Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedExam && (
+        <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-6 mt-6">
+          <h2 className="text-xl font-bold mb-4">Exam Details</h2>
+          <p><strong>Exam Name:</strong> {selectedExam.name}</p>
+          <p><strong>Description:</strong> {selectedExam.description}</p>
+          <p><strong>Creation Date & Time:</strong> {new Date(selectedExam.creationDate).toLocaleString()}</p>
+          <p><strong>Level:</strong> {selectedExam.level}</p>
+          <p><strong>Total Questions:</strong> {selectedExam.totalQuestions}</p>
+          <p><strong>Total Marks:</strong> {selectedExam.totalMarks}</p>
+          <p><strong>Pass Marks:</strong> {selectedExam.passMarks}</p>
+          <div className="text-center mt-4">
+            <button
+              onClick={closeDetails}
+              className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transition-all"
+            >
+              Close Details
             </button>
           </div>
         </div>
