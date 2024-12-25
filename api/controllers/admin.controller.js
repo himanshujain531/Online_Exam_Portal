@@ -3,6 +3,8 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import jwt from 'jsonwebtoken';
 import Subject from "../models/subject.model.js";
+import Exam from "../models/exam.model.js";
+
 
 export const updateAdmin= async (req, res, next) => {
     if (req.user.id !== req.params.id)
@@ -58,23 +60,24 @@ export const addSubject=async(req,res,next)=>{
 
 export const getAllSubjects = async (req, res, next) => {
   try {
-    const subjects = await Subject.find(); // Fetch all subjects from the database
+    const subject = await Subject.find(); // Fetch all subjects from the database
 
     // Check if there are any subjects
-    if (subjects.length === 0) {
-      return res.status(404).json({ message: "No subjects found!" });
+    if (subject.length === 0) {
+      return res.status(404).json({ message: "No subject found!" });
     }
 
     // Return the list of subjects
     return res.status(200).json({
       message: "Subjects retrieved successfully!",
-      subjects: subjects,
+      subject: subject,
     });
 
   } catch (error) {
     next(error); // Pass errors to the error handler middleware
   }
 };
+
 
 // delete subject
 
@@ -92,6 +95,79 @@ export const deleteSubject = async (req, res, next) => {
 
     // If successful, return a success message
     return res.status(200).json({ message: "Subject deleted successfully!" });
+  } catch (error) {
+    next(error); // Pass any errors to the error handler middleware
+  }
+};
+
+
+// add exam
+
+export const addExam = async (req, res, next) => {
+  const { name, description, level, totalQuestions, totalMarks, passMarks } = req.body;
+
+  try {
+    const existingExam = await Exam.findOne({ name: { $regex: `^${name}$`, $options: "i" } });
+    if (existingExam) {
+      return res.status(400).json({ message: "Exam already exists!" });
+    }
+    const newExam = new Exam({
+      name,
+      description,
+      level,
+      totalQuestions,
+      totalMarks,
+      passMarks
+    });
+    await newExam.save();
+    return res.status(201).json({
+      message: "Exam added successfully!",
+      exam: newExam,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// get all exam
+
+export const getAllExam = async (req, res, next) => {
+  try {
+    const exam = await Exam.find(); // Fetch all exam from the database
+
+    // Check if there are any exam
+    if (exam.length === 0) {
+      return res.status(404).json({ message: "No exam found!" });
+    }
+
+    // Return the list of subjects
+    return res.status(200).json({
+      message: "Exam retrieved successfully!",
+      exam: exam,
+    });
+
+  } catch (error) {
+    next(error); // Pass errors to the error handler middleware
+  }
+};
+
+// delete exam
+
+export const deleteExam = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    // Find and delete the exam by ID
+    const exam = await Exam.findByIdAndDelete(id);
+
+    // If the exam is not found, return an error
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found!" });
+    }
+
+    // If successful, return a success message
+    return res.status(200).json({ message: "Exam deleted successfully!" });
   } catch (error) {
     next(error); // Pass any errors to the error handler middleware
   }

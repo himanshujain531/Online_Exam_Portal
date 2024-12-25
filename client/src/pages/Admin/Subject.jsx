@@ -3,25 +3,23 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const Subject = () => {
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState([]);  // Initialize as an empty array
   const [newSubject, setNewSubject] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Fetch subjects from backend
   useEffect(() => {
+      fetchSubjects();
+    }, []);
+  
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get('/api/admin/all/subject');
-        setSubjects(response.data.subjects);
+        const response = await axios.get("/api/admin/all/subject");
+        setSubjects(response.data.subject);
       } catch (error) {
-        toast.error('Error fetching subjects. Please try again.');
+        toast.error("Failed to fetch subject!");
       }
     };
-    fetchSubjects();
-  }, []);
-
   // Add a new subject
   const addSubject = async () => {
     if (!newSubject.trim()) {
@@ -63,19 +61,25 @@ const Subject = () => {
             </tr>
           </thead>
           <tbody>
-            {subjects.map((subject) => (
-              <tr key={subject._id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 p-2">{subject.name}</td>
-                <td className="border border-gray-300 p-2">
-                  <button
-                    onClick={() => deleteSubject(subject._id)}
-                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition-all"
-                  >
-                    Delete
-                  </button>
-                </td>
+            {subjects.length === 0 ? (
+              <tr>
+                <td colSpan="2" className="text-center p-4">No subjects available.</td>
               </tr>
-            ))}
+            ) : (
+              subjects.map((subject) => (
+                <tr key={subject._id} className="hover:bg-gray-50">
+                  <td className="border border-gray-300 p-2">{subject.name}</td>
+                  <td className="border border-gray-300 p-2">
+                    <button
+                      onClick={() => deleteSubject(subject._id)}
+                      className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition-all"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

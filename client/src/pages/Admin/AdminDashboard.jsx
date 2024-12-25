@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../../context/AuthContext";
 import UpdateProfile from "./UpdateProfile";
 import Subject from "./Subject";
+import Exam from "./Exam"; // Import the Exam component
 
 export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,28 +28,24 @@ export default function AdminDashboard() {
 
   const handleSignOut = async () => {
     try {
-        const res = await fetch('/api/auth/signout');
-        const data = await res.json();
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
 
-        if (data.success === false) {
-            toast.error(`Error: ${data.message}`);
-            return;
-        }
+      if (data.success === false) {
+        toast.error(`Error: ${data.message}`);
+        return;
+      }
 
-        // Clear localStorage and update context
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem("user");
+      localStorage.removeItem("isAuthenticated");
+      logout();
 
-        // Call logout from context
-        logout();
-
-        toast.success('Successfully logged out!');
-        navigate('/admin-sign-in'); // Redirect to login after successful logout
+      toast.success("Successfully logged out!");
+      navigate("/admin-sign-in");
     } catch (error) {
-        toast.error(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`);
     }
-};
-
+  };
 
   const handleNavigate = (section) => {
     setActiveSection(section);
@@ -154,11 +151,16 @@ export default function AdminDashboard() {
             <UpdateProfile />
           ) : activeSection === "subject" ? (
             <Subject />
+          ) : activeSection === "exam" ? (
+            <Exam />
           ) : (
             <div>
-              <h2 className="text-3xl font-semibold mb-4">Welcome to Admin Dashboard</h2>
+              <h2 className="text-3xl font-semibold mb-4">
+                Welcome to Admin Dashboard
+              </h2>
               <p className="text-gray-700">
-                Use the navigation menu to manage exams, questions, and view results.
+                Use the navigation menu to manage exams, questions, and view
+                results.
               </p>
             </div>
           )}
