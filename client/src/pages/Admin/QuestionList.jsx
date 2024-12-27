@@ -64,13 +64,14 @@ const QuestionList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/admin/question/${id}`);
-      toast.success("Question deleted successfully!");
-      fetchQuestions();
+      const response = await axios.delete(`/api/admin/question/${id}`);
+      toast.success(response.data.message);
+      fetchQuestions(); // Refresh the question list and exam details
     } catch (error) {
-     // toast.error("Failed to delete question!");
+      toast.error(error.response?.data?.message || "Failed to delete question!");
     }
   };
+  
 
   const handleGoBack = () => {
     navigate(-1);

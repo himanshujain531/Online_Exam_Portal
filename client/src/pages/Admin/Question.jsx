@@ -26,12 +26,19 @@ const Question = ({ onBack }) => {
 
   const handleSubmit = async () => {
     const { examName, questionText, correctAnswer, marks } = formData;
-    if (!examName.trim() || !questionText.trim() || !correctAnswer || !marks) {
+  
+    // Ensure marks is a number
+    const numericMarks = Number(marks);
+    if (!examName.trim() || !questionText.trim() || !correctAnswer || !numericMarks) {
       toast.warn("All fields are required.");
       return;
     }
+  
     try {
-      const response = await axios.post("/api/admin/add/question", formData);
+      const response = await axios.post("/api/admin/add/question", {
+        ...formData,
+        marks: numericMarks, // Ensure marks is sent as a number
+      });
       toast.success(response.data.message);
       setFormData({
         examName: "",
@@ -44,7 +51,7 @@ const Question = ({ onBack }) => {
       toast.error(error.response?.data?.message || "Failed to add question!");
     }
   };
-
+  
   const handleGoBack = () => {
     navigate(-1); // Navigate to the previous page
   };

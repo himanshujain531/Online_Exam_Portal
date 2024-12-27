@@ -199,19 +199,24 @@ export const addQuestion = async (req, res, next) => {
       return res.status(404).json({ message: "Exam not found!" });
     }
 
+    // Ensure marks is a valid number
+    if (isNaN(marks) || marks <= 0) {
+      return res.status(400).json({ message: "Marks must be a positive number." });
+    }
+
     // Create and save the new question
     const newQuestion = new Question({
       questionText,
       options,
       correctAnswer,
       examName: exam.name, // Link the question to the exam
-      marks,
+      marks: parseFloat(marks), // Convert marks to a number
     });
     await newQuestion.save();
 
     // Update exam details
     exam.totalQuestions += 1;
-    exam.totalMarks += marks;
+    exam.totalMarks = parseFloat(exam.totalMarks) + parseFloat(marks); // Safely update total marks
     await exam.save();
 
     return res.status(201).json({
@@ -262,19 +267,29 @@ export const deleteQuestion = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    if (!id) {
-      return res.status(400).json({ message: "Question ID is required!" });
-    }
-
-    const question = await Question.findByIdAndDelete(id);
+    // Find the question to delete
+    const question = await Question.findById(id);
     if (!question) {
       return res.status(404).json({ message: "Question not found!" });
     }
 
+    // Find the associated exam
+    const exam = await Exam.findOne({ name: question.examName });
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found!" });
+    }
+
+    // Update exam details
+    exam.totalQuestions -= 1;
+    exam.totalMarks -= question.marks;
+    await exam.save();
+
+    // Delete the question
+    await Question.findByIdAndDelete(id);
+
     return res.status(200).json({ message: "Question deleted successfully!" });
   } catch (error) {
-    console.error("Error deleting question:", error);
-    next(error); // Handle unexpected errors
+    next(error); // Pass error to the global error handler
   }
 };
 
