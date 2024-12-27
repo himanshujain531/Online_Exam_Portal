@@ -4,6 +4,7 @@ import { errorHandler } from "../utils/error.js";
 import jwt from 'jsonwebtoken';
 import Subject from "../models/subject.model.js";
 import Exam from "../models/exam.model.js";
+import Question from "../models/question.model.js";
 
 
 export const updateAdmin= async (req, res, next) => {
@@ -170,5 +171,141 @@ export const deleteExam = async (req, res, next) => {
     return res.status(200).json({ message: "Exam deleted successfully!" });
   } catch (error) {
     next(error); // Pass any errors to the error handler middleware
+  }
+};
+
+
+
+
+// add question
+
+export const addQuestion = async (req, res, next) => {
+  const { questionText, options, correctAnswer, examName, marks } = req.body;
+
+  try {
+    // Validate inputs
+    if (!questionText || !options || !correctAnswer || !examName || !marks) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Ensure options is an object with exactly 4 properties
+    if (typeof options !== 'object' || Object.keys(options).length !== 4) {
+      return res.status(400).json({ message: "Options must be an object with exactly 4 entries." });
+    }
+
+    // Check if the exam exists
+    const exam = await Exam.findOne({ name: { $regex: `^${examName}$`, $options: "i" } });
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found!" });
+    }
+
+    // Create and save the new question
+    const newQuestion = new Question({
+      questionText,
+      options,
+      correctAnswer,
+      examName: exam.name, // Link the question to the exam
+      marks,
+    });
+    await newQuestion.save();
+
+    // Update exam details
+    exam.totalQuestions += 1;
+    exam.totalMarks += marks;
+    await exam.save();
+
+    return res.status(201).json({
+      message: "Question added successfully!",
+      question: newQuestion,
+    });
+  } catch (error) {
+    next(error); // Pass error to the global error handler
+  }
+};
+
+
+// get question by examname
+
+export const getQuestionsByExamName = async (req, res, next) => {
+  const { examName } = req.params;
+
+  try {
+    const questions = await Question.find({ examName: { $regex: `^${examName}$`, $options: "i" } });
+
+    if (questions.length === 0) {
+      return res.status(404).json({ message: "No questions found for this exam!" });
+    }
+
+    // Reformat the questions array
+    const formattedQuestions = questions.map((question) => ({
+      _id: question._id, // Include the MongoDB ID
+      questionText: question.questionText,
+      options: question.options,
+      correctAnswer: question.correctAnswer,
+      marks: question.marks,
+      createdAt: question.createdAt,
+      updatedAt: question.updatedAt,
+    }));
+
+    return res.status(200).json({
+      message: "Questions retrieved successfully!",
+      questions: formattedQuestions,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// delete question
+export const deleteQuestion = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    if (!id) {
+      return res.status(400).json({ message: "Question ID is required!" });
+    }
+
+    const question = await Question.findByIdAndDelete(id);
+    if (!question) {
+      return res.status(404).json({ message: "Question not found!" });
+    }
+
+    return res.status(200).json({ message: "Question deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting question:", error);
+    next(error); // Handle unexpected errors
+  }
+};
+
+
+// Edit Question
+export const editQuestion = async (req, res, next) => {
+  const { id } = req.params;
+  const { questionText, options, correctAnswer, marks } = req.body;
+
+  try {
+    // Validate inputs
+    if (!questionText || !options || !correctAnswer || !marks) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Find and update the question
+    const updatedQuestion = await Question.findByIdAndUpdate(
+      id,
+      { questionText, options, correctAnswer, marks },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedQuestion) {
+      return res.status(404).json({ message: "Question not found!" });
+    }
+
+    return res.status(200).json({
+      message: "Question updated successfully!",
+      question: updatedQuestion,
+    });
+  } catch (error) {
+    next(error); // Handle errors
   }
 };

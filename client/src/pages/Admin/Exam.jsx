@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,6 +16,8 @@ const Exam = () => {
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedExam, setSelectedExam] = useState(null); // New state for selected exam details
+  const navigate = useNavigate(); // Hook for navigation
+
 
   useEffect(() => {
     fetchExams();
@@ -114,10 +117,14 @@ const Exam = () => {
                       >
                         Details
                       </button>
-                      <button className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600 transition">
+                      <button
+                        onClick={() => navigate(`/question-list?examName=${exam.name}`)}
+                       className="bg-green-500 text-white text-xs px-3 py-1 rounded hover:bg-green-600 transition">
                         View Questions
                       </button>
-                      <button className="bg-yellow-500 text-white text-xs px-3 py-1 rounded hover:bg-yellow-600 transition">
+                      <button 
+                      onClick={() => navigate(`/admin-dashboard?section=question&examName=${exam.name}`)}
+                      className="bg-yellow-500 text-white text-xs px-3 py-1 rounded hover:bg-yellow-600 transition">
                         Add Questions
                       </button>
                       <button

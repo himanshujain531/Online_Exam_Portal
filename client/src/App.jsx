@@ -4,6 +4,8 @@ import SignIn from "./pages/SignIn";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import Question from "./pages/Admin/Question";
+import QuestionList from "./pages/Admin/QuestionList";
 
 export default function App() {
   return (
@@ -20,6 +22,10 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+                  <Route path="/questions/:examName" element={<Question />} />
+                 <Route path="/question-list" element={<QuestionList />} /> 
+
+
           
         </Routes>
       </AuthProvider>

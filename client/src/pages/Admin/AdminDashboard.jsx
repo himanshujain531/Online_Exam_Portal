@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import UpdateProfile from "./UpdateProfile";
 import Subject from "./Subject";
 import Exam from "./Exam"; // Import the Exam component
+import Question from "./Question";
 
 export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -153,6 +154,9 @@ export default function AdminDashboard() {
             <Subject />
           ) : activeSection === "exam" ? (
             <Exam />
+          ) : activeSection === "question" ? ( 
+            <Question examName={new URLSearchParams(location.search).get("examName")} />
+
           ) : (
             <div>
               <h2 className="text-3xl font-semibold mb-4">
