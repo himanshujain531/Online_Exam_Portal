@@ -105,6 +105,16 @@ export default function SignIn() {
               {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
+
+          {/* Go Back Button */}
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => navigate("/")}
+              className="text-blue-500 hover:underline text-sm"
+            >
+              Go Back to Home
+            </button>
+          </div>
         </div>
       </div>
       {/* Toast Container */}
