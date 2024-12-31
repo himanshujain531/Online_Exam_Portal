@@ -6,6 +6,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import Question from "./pages/Admin/Question";
 import QuestionList from "./pages/Admin/QuestionList";
+import StudentLogin from "./pages/StudentLogin";
+import Register from "./pages/Register";
 
 export default function App() {
   return (
@@ -14,6 +16,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin-sign-in" element={<SignIn />} />
+          <Route path="/StudentLogin" element={<StudentLogin />} />
+          <Route path="/register" element={<Register />} />
+
+
           <Route
             path="/admin-dashboard"
             element={
