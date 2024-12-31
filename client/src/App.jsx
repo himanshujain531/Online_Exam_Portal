@@ -8,6 +8,7 @@ import Question from "./pages/Admin/Question";
 import QuestionList from "./pages/Admin/QuestionList";
 import StudentLogin from "./pages/StudentLogin";
 import Register from "./pages/Register";
+import StudentDashboard from "./pages/Student/StudentDashboard";
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="StudentDashboard"
+            element={
+              <ProtectedRoute>
+                <StudentDashboard />
               </ProtectedRoute>
             }
           />
