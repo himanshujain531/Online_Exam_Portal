@@ -1,6 +1,8 @@
 import bcryptjs from 'bcryptjs';
 import Student from "../models/studentRegister.model.js";
 import { errorHandler } from "../utils/error.js";
+import jwt from "jsonwebtoken";
+
 
 
 // student register
@@ -40,26 +42,33 @@ export const studentLogIn = async (req, res, next) => {
 
     // Validation
     if (!email || !password) {
-        return res.status(400).json({ message: 'All fields are required' });
+        return res.status(400).json({ message: "All fields are required" });
     }
 
     try {
         // Check if student exists
         const existingStudent = await Student.findOne({ email });
         if (!existingStudent) {
-            return res.status(404).json({ message: 'Student not found' });
+            return res.status(404).json({ message: "Student not found" });
         }
 
         // Verify password
         const isPasswordValid = bcryptjs.compareSync(password, existingStudent.password);
-
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: "Invalid email or password" });
         }
+
+        // Generate JWT
+        const token = jwt.sign(
+            { id: existingStudent._id },
+            process.env.JWT_SECRET || "your_secret_key", // Use a secure key in production
+            { expiresIn: "1h" }
+        );
 
         // Successful login response
         res.status(200).json({
-            message: 'Sign-In Successful',
+            message: "Sign-In Successful",
+            token, // Include token in the response
             student: {
                 id: existingStudent._id,
                 name: existingStudent.name,
@@ -70,3 +79,14 @@ export const studentLogIn = async (req, res, next) => {
         next(error);
     }
 };
+
+
+//logout
+export const studentLogout = async (req, res, next) => {
+    try {
+      res.clearCookie('access_token');
+      res.status(200).json('User has been logged out!');
+    } catch (error) {
+      next(error);
+    }
+  };

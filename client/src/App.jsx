@@ -30,11 +30,9 @@ export default function App() {
             }
           />
           <Route
-            path="StudentDashboard"
+            path="/Student"
             element={
-              <ProtectedRoute>
                 <StudentDashboard />
-              </ProtectedRoute>
             }
           />
                   <Route path="/questions/:examName" element={<Question />} />

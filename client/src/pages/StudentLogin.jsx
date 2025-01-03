@@ -31,16 +31,16 @@ const StudentLogin = () => {
         email,
         password,
       });
-      toast.success("Login Successful!");
-      setFormData({ email: "", password: "" });
 
-      // Save token or user details if provided in response
+      // Store token and student data in localStorage
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data.token); // Store the token
+        localStorage.setItem("student", JSON.stringify(response.data.student)); // Optional: Store student data
+        toast.success("Login Successful!");
+        setTimeout(() => navigate("/Student?section=dashboard"), 2000); // Redirect to dashboard
+      } else {
+        toast.error("No token received from server!");
       }
-
-      // Redirect to the dashboard or home page
-      setTimeout(() => navigate("/home"), 2000);
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid credentials!");
     }
@@ -50,7 +50,7 @@ const StudentLogin = () => {
     <>
       <Header />
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-1/3">
+        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center">Student Login</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
@@ -97,6 +97,15 @@ const StudentLogin = () => {
               Register here
             </span>
           </p>
+{/* Go Back Button */}
+<div className="mt-4 text-center">
+            <button
+              onClick={() => navigate("/")}
+              className="text-blue-500 hover:underline text-sm"
+            >
+              Go Back to Home
+            </button>
+          </div>
         </div>
         <ToastContainer />
       </div>
