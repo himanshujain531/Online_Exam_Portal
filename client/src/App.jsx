@@ -9,6 +9,7 @@ import QuestionList from "./pages/Admin/QuestionList";
 import StudentLogin from "./pages/StudentLogin";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/Student/StudentDashboard";
+import Profile from "./pages/Student/Profile";
 
 export default function App() {
   return (
@@ -19,6 +20,9 @@ export default function App() {
           <Route path="/admin-sign-in" element={<SignIn />} />
           <Route path="/StudentLogin" element={<StudentLogin />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+
+
 
 
           <Route

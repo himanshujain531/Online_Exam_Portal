@@ -2,7 +2,8 @@ import bcryptjs from 'bcryptjs';
 import Student from "../models/studentRegister.model.js";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
-
+import fs from "fs";
+import path from 'path';
 
 
 // student register
@@ -90,3 +91,45 @@ export const studentLogout = async (req, res, next) => {
       next(error);
     }
   };
+
+
+// student details
+  export const studentDetails = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const student = await Student.findById(id);
+  
+      if (!student) {
+        return res.status(404).json({ success: false, message: "Student not found" });
+      }
+  
+      res.status(200).json({ success: true, data: student });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    }
+  };
+
+// update student
+export const updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email } = req.body;
+
+    const updateData = { name, email };
+
+    // If a photo is uploaded, handle the file and save its path
+   if (req.file) {
+      updateData.photo = req.file.path; // Save the uploaded photo path
+    }
+
+    const updatedStudent = await Student.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedStudent) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    res.status(200).json({ success: true, data: updatedStudent });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server Error", error: err.message });
+  }
+};

@@ -1,47 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Profile from './Profile'; // Import Profile Component
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const StudentDashboard = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Extract the active section from the URL
   const activeSection = new URLSearchParams(location.search).get('section');
 
-  // Check if the user is logged in (has a token)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       toast.error('You must be logged in to access the dashboard');
-      navigate('/StudentLogin'); // Redirect to login if no token found
-    } else {
-      // Optional: Retrieve and use student data if needed
-      const student = JSON.parse(localStorage.getItem('student'));
-      console.log("Logged-in student:", student);
+      navigate('/StudentLogin');
     }
   }, [navigate]);
-  
 
-  const handleMenuClick = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const handleMenuClick = () => setIsMenuOpen(!isMenuOpen);
 
-  const handleOptionClick = () => {
-    setIsMenuOpen(false); // Close the menu when an option is clicked
-  };
-
-  // Logout handler
   const handleLogout = async () => {
     try {
-      // Make a GET request to the logout API
       await axios.get('/api/student/logout');
       toast.success('Logged out successfully!');
-      localStorage.removeItem('token'); // Clear the token from localStorage
-      navigate('/StudentLogin'); // Redirect to login page
+      localStorage.removeItem('token');
+      navigate('/StudentLogin');
     } catch (error) {
       toast.error('Failed to log out!');
     }
@@ -51,12 +37,10 @@ const StudentDashboard = () => {
     <div>
       {/* Navbar */}
       <nav className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center">
-        {/* Logo */}
         <Link to="?section=dashboard" className="text-lg font-bold">
           Online Exam System
         </Link>
 
-        {/* Toggle Button for Small Screens */}
         <button
           onClick={handleMenuClick}
           className="sm:hidden text-white focus:outline-none"
@@ -77,7 +61,6 @@ const StudentDashboard = () => {
           </svg>
         </button>
 
-        {/* Links */}
         <div
           className={`${
             isMenuOpen ? 'block' : 'hidden'
@@ -88,7 +71,6 @@ const StudentDashboard = () => {
             className={`block px-4 py-2 hover:text-gray-300 ${
               activeSection === 'subject' ? 'text-blue-300' : ''
             }`}
-            onClick={handleOptionClick}
           >
             Subject
           </Link>
@@ -97,7 +79,6 @@ const StudentDashboard = () => {
             className={`block px-4 py-2 hover:text-gray-300 ${
               activeSection === 'my-result' ? 'text-blue-300' : ''
             }`}
-            onClick={handleOptionClick}
           >
             My Result
           </Link>
@@ -106,13 +87,12 @@ const StudentDashboard = () => {
             className={`block px-4 py-2 hover:text-gray-300 ${
               activeSection === 'profile' ? 'text-blue-300' : ''
             }`}
-            onClick={handleOptionClick}
           >
             Profile
           </Link>
           <button
             className="block px-4 py-2 hover:text-gray-300 w-full text-left sm:w-auto"
-            onClick={handleLogout} // Logout when clicked
+            onClick={handleLogout}
           >
             Logout
           </button>
@@ -130,12 +110,9 @@ const StudentDashboard = () => {
         {activeSection === 'my-result' && (
           <h1 className="text-2xl font-bold">My Result Section</h1>
         )}
-        {activeSection === 'profile' && (
-          <h1 className="text-2xl font-bold">Profile Section</h1>
-        )}
+        {activeSection === 'profile' && <Profile />}
       </div>
 
-      {/* Toast Container */}
       <ToastContainer />
     </div>
   );
