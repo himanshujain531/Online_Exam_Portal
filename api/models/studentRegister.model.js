@@ -20,10 +20,6 @@ const studentSchema = mongoose.Schema({
         required: [true, 'Password is required'],
         minlength: 6,
     },
-    photo:{
-        type: String,
-        default: '',
-    }
 }, {
     timestamps: true,
 });
